@@ -1,5 +1,12 @@
 package com.pluralcamp.daw.persistence.daos.impl.jdbc;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.DriverManager;
+import java.util.ArrayList;
+import java.util.List;
 import com.pluralcamp.daw.entities.core.Color;
 import com.pluralcamp.daw.persistence.daos.contracts.ColorDAO;
 import com.pluralcamp.daw.persistence.exceptions.DAOException;
@@ -9,14 +16,26 @@ import java.util.List;
 public class ColorDAOJDBCImpl implements ColorDAO {
     @Override
     public Color getColorById(long id) throws DAOException {
+        Color color = null;
 
-        //Objectes que calen:
-        //1er objecte - Connexio, via DriverManager de JDBC
-        //2n objecte - Obrir un canal de Consulta - PraparedStatement
-        //2.1 - Enviar la consulta SQL
-        //3er objecte - Obrir un canal de Lectura, un cursor - ResultSet
+            try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/calendar?serverTimezone=Europe/Paris", "root", "admin");
+                 PreparedStatement sentSQL = connection.prepareStatement("SELECT id, name, red, gree, bkue FROM colors WHERE id = ?");){
 
-        return null;
+                sentSQL.setLong(1, id);
+                try (ResultSet reader = sentSQL.executeQuery()) {
+                    if (reader.next()) {
+                        color = new Color(reader.getString("name"), reader.getInt("red"), reader.getInt("green"), reader.getInt("blue"));
+                        color.sentID(reader.getLong("id"));
+                    }
+            }
+
+            } 
+            catch (SQLException ex) {
+                //Logger
+                throw new DAOException(ex);
+            }
+        
+        return color;
     }
 
     @Override

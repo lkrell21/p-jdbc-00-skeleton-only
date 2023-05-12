@@ -40,6 +40,9 @@ public class ColorDAOJDBCImpl implements ColorDAO {
 
     @Override
     public List<Color> getColors() throws DAOException {
+        List<Color> colors = new ArrayList<>();
+        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/calendar?serverTimezone=Europe/Paris", "root", "admin")
+        );        
         return null;
     }
 
